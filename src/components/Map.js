@@ -24,7 +24,7 @@ export class Map extends Component {
 
   render() {
     const {lat, lng} = this.state;
-    const places = [<PlaceMarker lat={lat} lng={lng} price={20} />];
+    const places = [<PlaceMarker lat={lat} lng={lng} price={20} name={"Voiture"} description={"Renault Clio immat BW-941-ZZ"} />];
 
     return(
       <div style={{width: `500px`, height: `750px`}}>
