@@ -14,8 +14,10 @@ const ParkwizMap = withGoogleMap(props => (
     defaultZoom={props.zoom}>
     {
       props.places.length > 0 && props.places.map(place => (
-        <PlaceMarker lat={44.8472302}
-                     lng={-0.5775494}
+        <PlaceMarker key={`place${place.id}`}
+                     id={place.id}
+                     lat={place.lat}
+                     lng={place.lng}
                      description={'Renault Clio immat BW-941-ZZ'}
                      name={'Voiture'}
                      price={'10'} />
@@ -36,8 +38,8 @@ export class Map extends Component {
 
     this.state = {
       places: [],
-      lat: 44.8472302,
-      lng: -0.5775494
+      lat: 44.847352,
+      lng: -0.5774067
     };
   }
 
@@ -72,8 +74,12 @@ export class Map extends Component {
 
   // get markers from API
   fetchPlacesFromApi() {
-    const place = <PlaceMarker lat={44.8472302} lng={-0.5775494} price={20} name={"Voiture"} description={"Renault Clio immat BW-941-ZZ"} />
-    this.setState({ places: [place] })
+    this.setState({ places: [] })
+
+    fetch(`/api/v1/spottings?min_lng=${this.xMapBounds.min}&max_lng=${this.xMapBounds.max}&min_lat=${this.yMapBounds.min}&max_lat=${this.yMapBounds.max}`,
+      { method: 'GET' })
+      .then((response) => response.json())
+      .then((response) => this.setState({ places: response }))
   }
 
   // gets and sets map boundaries
@@ -85,15 +91,16 @@ export class Map extends Component {
     this.xMapBounds.min = xMapBounds.b
     this.xMapBounds.max = xMapBounds.f
 
-    this.yMapBounds.min = yMapBounds.f
-    this.yMapBounds.max = yMapBounds.b
+    // Corrected against tuto as for negative coords max min need to be inverted
+    this.yMapBounds.max = yMapBounds.f
+    this.yMapBounds.min = yMapBounds.b
   }
 
   render() {
     const {lat, lng, places} = this.state;
 
     return(
-      <div style={{width: `750px`, height: `750px`}}>
+      <div style={{width: `350px`, height: `600px`}}>
         <ul>
           <li>lng: {lng}</li>
           <li>lat: {lat}</li>
