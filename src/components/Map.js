@@ -18,8 +18,8 @@ const ParkwizMap = withGoogleMap(props => (
                      id={place.id}
                      lat={place.lat}
                      lng={place.lng}
-                     description={'Renault Clio immat BW-941-ZZ'}
-                     name={'Voiture'}
+                     description={"repéré par user" + place.user_id}
+                     name={place.direction + "degrees"}
                      price={'10'} />
       ))
     }
@@ -36,8 +36,15 @@ export class Map extends Component {
     this.mapFullyLoaded = false
     this.zoom = 16
 
+    this.userSet = false
+
+    this.device_id = "852b50777ced0b51c3853a443016774a"
+
     this.state = {
       places: [],
+      userLat : null,
+      userLng : null,
+      user: [],
       lat: 44.847352,
       lng: -0.5774067
     };
@@ -48,6 +55,7 @@ export class Map extends Component {
     this.getMapBounds()
     this.setMapCenterPoint()
     this.fetchPlacesFromApi()
+    this.fetchUserFromApi()
   }
 
   // assigns a map object to this.map once map is loaded
@@ -70,6 +78,10 @@ export class Map extends Component {
       lat: this.map.getCenter().lat(),
       lng: this.map.getCenter().lng()
     })
+    if (this.userSet)
+      return
+      this.setState({userLat: this.map.getCenter().lat(), userLng: this.map.getCenter().lng() })
+      this.userSet = true
   }
 
   // get markers from API
@@ -80,6 +92,16 @@ export class Map extends Component {
       { method: 'GET' })
       .then((response) => response.json())
       .then((response) => this.setState({ places: response }))
+  }
+
+  // get user info from API
+  fetchUserFromApi() {
+    this.setState({ user: [] })
+
+    fetch(`/api/v1/users?device_id=${this.device_id}`,
+      { method: 'GET' })
+      .then((response) => response.json())
+      .then((response) => this.setState({ user: response.user }))
   }
 
   // gets and sets map boundaries
@@ -97,13 +119,16 @@ export class Map extends Component {
   }
 
   render() {
-    const {lat, lng, places} = this.state;
+    const {lat, lng, userLat, userLng, user, places} = this.state;
 
     return(
       <div style={{width: `350px`, height: `600px`}}>
         <ul>
           <li>lng: {lng}</li>
           <li>lat: {lat}</li>
+          <li>User lng: {userLng}</li>
+          <li>User lat: {userLat}</li>
+          <li>User details: {user}</li>
           <li>xMapBounds.min: {this.xMapBounds.min}</li>
           <li>xMapBounds.max: {this.xMapBounds.max}</li>
           <li>yMapBounds.min: {this.yMapBounds.min}</li>
